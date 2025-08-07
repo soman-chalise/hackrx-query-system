@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Smart Doc Assistant</title>
+    <script>
+        function uploadFile(event) {
+            event.preventDefault();
+            const form = document.getElementById("upload-form");
+            const formData = new FormData(form);
+            const status = document.getElementById("status");
+            const chatBox = document.getElementById("chat-box");
+            const chatInput = document.getElementById("chat-section");
+
+            status.innerText = "⏳ Uploading and processing document...";
+            chatBox.innerHTML = "";
+            chatInput.style.display = "none";
+
+            fetch("/", {
+                method: "POST",
+                body: formData
+            }).then(res => res.json())
+              .then(data => {
+                status.innerText = "✅ File processed. You can now ask questions.";
+                chatInput.style.display = "block";
+              }).catch(err => {
+                status.innerText = "❌ Error processing file.";
+              });
+        }
+
+        function sendMessage(event) {
+            event.preventDefault();
+            const question = document.getElementById("question").value;
+            const chatBox = document.getElementById("chat-box");
+            if (!question.trim()) return;
+
+            chatBox.innerHTML += `<p><b>You:</b> ${question}</p>`;
+            document.getElementById("question").value = "";
+
+            fetch("/chat", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ question })
+            }).then(res => res.json())
+              .then(data => {
+                chatBox.innerHTML += `<p><b>Bot:</b> ${data.answer}</p>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+              }).catch(err => {
+                chatBox.innerHTML += `<p><b>Bot:</b> ❌ Error getting response</p>`;
+              });
+        }
+    </script>
+</head>
+<body>
+    <h2>Smart Doc Assistant</h2>
+
+    <form id="upload-form" onsubmit="uploadFile(event)" enctype="multipart/form-data">
+        <input type="file" name="file" required><br><br>
+        <input type="submit" value="Upload File">
+    </form>
+
+    <p id="status"></p>
+
+    <div id="chat-section" style="display:none;">
+        <h3>Chat with Document</h3>
+        <div id="chat-box" style="background:#eee; padding:10px; max-height:300px; overflow:auto; margin-bottom:10px;"></div>
+        <form onsubmit="sendMessage(event)">
+            <input type="text" id="question" placeholder="Ask a question..." style="width: 70%;" required>
+            <input type="submit" value="Send">
+        </form>
+    </div>
+</body>
+</html>

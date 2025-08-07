@@ -1,0 +1,11 @@
+flask
+Flask-Session
+sqlalchemy
+psycopg2-binary
+python-dotenv
+pytesseract
+pillow
+pypdf
+requests
+sentence-transformers
+pinecone-client
