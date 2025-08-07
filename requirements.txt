@@ -8,4 +8,4 @@ pillow
 pypdf
 requests
 sentence-transformers
-pinecone-client
+pinecone
